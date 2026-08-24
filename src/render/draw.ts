@@ -7,6 +7,7 @@ import {
 import { pipeSolids } from '../game/collision'
 import type { GameWorld } from '../game/world'
 import type { GamePhase } from '../game/types'
+import birdUrl from '../assets/red-bird.png'
 
 export function overlayTitle(phase: GamePhase): string | null {
   if (phase === 'ready') return '按空格开始'
@@ -182,14 +183,15 @@ let birdSprite: HTMLImageElement | null = null
 
 /** Load the cute plush-style red bird sprite (call once at boot). */
 export function loadBirdSprite(): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
       birdSprite = img
       resolve()
     }
-    img.onerror = () => resolve()
-    img.src = `${import.meta.env.BASE_URL}red-bird.png`
+    img.onerror = () => reject(new Error(`Failed to load bird sprite: ${birdUrl}`))
+    // Bundled by Vite — works for both local and GitHub Pages base paths
+    img.src = birdUrl
   })
 }
 

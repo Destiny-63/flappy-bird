@@ -61,6 +61,7 @@ function frame(now: number) {
   requestAnimationFrame(frame)
 }
 
-void loadBirdSprite().then(() => {
-  requestAnimationFrame(frame)
+void loadBirdSprite().catch((err) => {
+  console.error(err)
 })
+requestAnimationFrame(frame)
