@@ -86,6 +86,7 @@ export function updateWorld(
       CANVAS_HEIGHT,
       rng,
       movingGap,
+      world.score,
     )
   }
   world.score = applyPassScore(world.bird, world.pipes, world.score)

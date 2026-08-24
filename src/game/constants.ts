@@ -21,7 +21,12 @@ export const PIPE_SPEED = 140
 export const PIPE_SPACING = 220
 export const PIPE_MIN_MARGIN = 40
 
-/** After score exceeds this, newly spawned pipes oscillate their gaps. */
+/** Score at which difficulty approaches max (gap/reachability). */
+export const DIFFICULTY_SCORE_SCALE = 15
+/** Assumed fastest sustainable flap interval for reachability (seconds). */
+export const MIN_FLAP_INTERVAL = 0.14
+
+/** After score exceeds this, newly spawned pipes can oscillate their gaps. */
 export const MOVING_GAP_SCORE_THRESHOLD = 5
 export const MOVING_GAP_AMPLITUDE = 55
 export const MOVING_GAP_OMEGA = 1.85
