@@ -2,6 +2,7 @@ import {
   BIRD_HEIGHT,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  MOVING_GAP_SCORE_THRESHOLD,
   PIPE_SPEED,
   PIPE_SPACING,
 } from './constants'
@@ -29,6 +30,8 @@ export type GameWorld = {
   score: number
   highScore: number
   beatHighScore: boolean
+  /** Seconds; drives parallax foliage even when not playing. */
+  bgTime: number
 }
 
 export function createWorld(storage: StorageLike): GameWorld {
@@ -39,6 +42,7 @@ export function createWorld(storage: StorageLike): GameWorld {
     score: 0,
     highScore: readHighScore(storage),
     beatHighScore: false,
+    bgTime: 0,
   }
 }
 
@@ -68,13 +72,21 @@ export function updateWorld(
   storage: StorageLike,
   rng: () => number = Math.random,
 ): void {
+  world.bgTime += dt
   if (world.phase !== 'playing') return
 
   stepBird(world.bird, dt)
   stepPipes(world.pipes, dt, PIPE_SPEED)
   world.pipes = recyclePipes(world.pipes, CANVAS_WIDTH)
   if (shouldSpawn(world.pipes, CANVAS_WIDTH, PIPE_SPACING)) {
-    world.pipes = spawnPipe(world.pipes, CANVAS_WIDTH, CANVAS_HEIGHT, rng)
+    const movingGap = world.score > MOVING_GAP_SCORE_THRESHOLD
+    world.pipes = spawnPipe(
+      world.pipes,
+      CANVAS_WIDTH,
+      CANVAS_HEIGHT,
+      rng,
+      movingGap,
+    )
   }
   world.score = applyPassScore(world.bird, world.pipes, world.score)
 

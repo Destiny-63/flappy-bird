@@ -40,6 +40,9 @@ describe('collision', () => {
       gapSize: 150,
       width: 60,
       scored: false,
+      movingGap: false,
+      gapBaseY: 300,
+      gapPhase: 0,
     }
     const { top, bottom } = pipeSolids(pipe, CANVAS_HEIGHT)
     expect(top).toEqual({ x: 100, y: 0, width: 60, height: 225 })
@@ -59,6 +62,9 @@ describe('collision', () => {
       gapSize: 150,
       width: 60,
       scored: false,
+      movingGap: false,
+      gapBaseY: 300,
+      gapPhase: 0,
     }
     expect(hitsPipes(birdAt(80, 50), [pipe], CANVAS_HEIGHT)).toBe(true)
     expect(hitsPipes(birdAt(80, 288), [pipe], CANVAS_HEIGHT)).toBe(false)

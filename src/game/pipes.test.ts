@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BIRD_MODEL_SIZE,
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
+  MAX_PIPE_GAP,
+  MIN_PIPE_GAP,
   PIPE_GAP,
   PIPE_MIN_MARGIN,
   PIPE_SPACING,
@@ -11,6 +14,7 @@ import {
   clampGapCenter,
   createPipePair,
   randomGapCenter,
+  randomGapSize,
   recyclePipes,
   shouldSpawn,
   spawnPipe,
@@ -33,6 +37,15 @@ describe('pipes', () => {
     expect(y).toBeLessThanOrEqual(max)
   })
 
+  it('randomGapSize stays between two bird models and max', () => {
+    expect(MIN_PIPE_GAP).toBe(2 * BIRD_MODEL_SIZE)
+    expect(randomGapSize(() => 0)).toBe(MIN_PIPE_GAP)
+    expect(randomGapSize(() => 1)).toBe(MAX_PIPE_GAP)
+    const mid = randomGapSize(() => 0.5)
+    expect(mid).toBeGreaterThan(MIN_PIPE_GAP)
+    expect(mid).toBeLessThan(MAX_PIPE_GAP)
+  })
+
   it('scrolls left and recycles off-screen pipes', () => {
     const pipes = [createPipePair(-70, 300)]
     stepPipes(pipes, 1, 10)
@@ -48,13 +61,27 @@ describe('pipes', () => {
     expect(shouldSpawn(close, CANVAS_WIDTH, PIPE_SPACING)).toBe(false)
   })
 
-  it('spawnPipe appends a full on-screen gap pair', () => {
+  it('spawnPipe appends a full on-screen gap pair with random size', () => {
     const pipes = spawnPipe([], CANVAS_WIDTH, CANVAS_HEIGHT, () => 0.25)
     expect(pipes).toHaveLength(1)
     expect(pipes[0].x).toBe(CANVAS_WIDTH)
     expect(pipes[0].width).toBe(PIPE_WIDTH)
-    expect(pipes[0].gapSize).toBe(PIPE_GAP)
+    expect(pipes[0].gapSize).toBeGreaterThanOrEqual(MIN_PIPE_GAP)
+    expect(pipes[0].gapSize).toBeLessThanOrEqual(MAX_PIPE_GAP)
     expect(pipes[0].scored).toBe(false)
+    expect(pipes[0].movingGap).toBe(false)
+    const gapTop = pipes[0].gapCenterY - pipes[0].gapSize / 2
+    const gapBottom = pipes[0].gapCenterY + pipes[0].gapSize / 2
+    expect(gapTop).toBeGreaterThanOrEqual(PIPE_MIN_MARGIN)
+    expect(gapBottom).toBeLessThanOrEqual(CANVAS_HEIGHT - PIPE_MIN_MARGIN)
+  })
+
+  it('oscillates gapCenterY for moving pipes while staying in bounds', () => {
+    const pipes = spawnPipe([], CANVAS_WIDTH, CANVAS_HEIGHT, () => 0.5, true)
+    expect(pipes[0].movingGap).toBe(true)
+    const base = pipes[0].gapBaseY
+    stepPipes(pipes, 0.4, 0)
+    expect(pipes[0].gapCenterY).not.toBe(base)
     const gapTop = pipes[0].gapCenterY - pipes[0].gapSize / 2
     const gapBottom = pipes[0].gapCenterY + pipes[0].gapSize / 2
     expect(gapTop).toBeGreaterThanOrEqual(PIPE_MIN_MARGIN)

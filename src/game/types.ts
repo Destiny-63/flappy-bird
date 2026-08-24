@@ -21,4 +21,8 @@ export type PipePair = {
   gapSize: number
   width: number
   scored: boolean
+  /** When true, gapCenterY oscillates around gapBaseY. */
+  movingGap: boolean
+  gapBaseY: number
+  gapPhase: number
 }

@@ -29,7 +29,16 @@ const bird = (x: number): Bird => ({
 describe('score', () => {
   it('increments once when bird crosses pipe right edge', () => {
     const pipes: PipePair[] = [
-      { x: 40, gapCenterY: 300, gapSize: 150, width: 60, scored: false },
+      {
+        x: 40,
+        gapCenterY: 300,
+        gapSize: 150,
+        width: 60,
+        scored: false,
+        movingGap: false,
+        gapBaseY: 300,
+        gapPhase: 0,
+      },
     ]
     const next = applyPassScore(bird(100), pipes, 0)
     expect(next).toBe(1)

@@ -61,6 +61,17 @@ describe('world', () => {
     expect(world.score).toBe(0)
   })
 
+  it('spawns moving-gap pipes after score exceeds threshold', () => {
+    const storage = new MemoryStorage()
+    const world = createWorld(storage)
+    handleSpace(world, storage)
+    world.score = 6
+    world.pipes = []
+    updateWorld(world, 0.016, storage, () => 0.5)
+    expect(world.pipes.length).toBe(1)
+    expect(world.pipes[0].movingGap).toBe(true)
+  })
+
   it('keeps PIPE_SPACING available for spawn cadence', () => {
     expect(PIPE_SPACING).toBeGreaterThan(0)
   })

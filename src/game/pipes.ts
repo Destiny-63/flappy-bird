@@ -1,4 +1,13 @@
-import { PIPE_GAP, PIPE_MIN_MARGIN, PIPE_WIDTH } from './constants'
+import {
+  CANVAS_HEIGHT,
+  MAX_PIPE_GAP,
+  MIN_PIPE_GAP,
+  MOVING_GAP_AMPLITUDE,
+  MOVING_GAP_OMEGA,
+  PIPE_GAP,
+  PIPE_MIN_MARGIN,
+  PIPE_WIDTH,
+} from './constants'
 import type { PipePair } from './types'
 
 export function clampGapCenter(
@@ -17,8 +26,18 @@ export function createPipePair(
   gapCenterY: number,
   gapSize: number = PIPE_GAP,
   width: number = PIPE_WIDTH,
+  movingGap = false,
 ): PipePair {
-  return { x, gapCenterY, gapSize, width, scored: false }
+  return {
+    x,
+    gapCenterY,
+    gapSize,
+    width,
+    scored: false,
+    movingGap,
+    gapBaseY: gapCenterY,
+    gapPhase: 0,
+  }
 }
 
 export function randomGapCenter(
@@ -32,9 +51,23 @@ export function randomGapCenter(
   return min + rng() * (max - min)
 }
 
+/** Random gap height in [MIN_PIPE_GAP, MAX_PIPE_GAP]. */
+export function randomGapSize(rng: () => number): number {
+  return MIN_PIPE_GAP + rng() * (MAX_PIPE_GAP - MIN_PIPE_GAP)
+}
+
 export function stepPipes(pipes: PipePair[], dt: number, speed: number): void {
   for (const pipe of pipes) {
     pipe.x -= speed * dt
+    if (pipe.movingGap) {
+      pipe.gapPhase += MOVING_GAP_OMEGA * dt
+      pipe.gapCenterY = clampGapCenter(
+        pipe.gapBaseY + Math.sin(pipe.gapPhase) * MOVING_GAP_AMPLITUDE,
+        pipe.gapSize,
+        CANVAS_HEIGHT,
+        PIPE_MIN_MARGIN,
+      )
+    }
   }
 }
 
@@ -57,12 +90,13 @@ export function spawnPipe(
   canvasWidth: number,
   canvasHeight: number,
   rng: () => number,
+  movingGap = false,
 ): PipePair[] {
-  const gapCenterY = randomGapCenter(
-    rng,
-    canvasHeight,
-    PIPE_GAP,
-    PIPE_MIN_MARGIN,
-  )
-  return [...pipes, createPipePair(canvasWidth, gapCenterY)]
+  const gapSize = randomGapSize(rng)
+  // Keep oscillation within safe margins by shrinking the base range.
+  const baseMargin = movingGap
+    ? PIPE_MIN_MARGIN + MOVING_GAP_AMPLITUDE
+    : PIPE_MIN_MARGIN
+  const gapCenterY = randomGapCenter(rng, canvasHeight, gapSize, baseMargin)
+  return [...pipes, createPipePair(canvasWidth, gapCenterY, gapSize, PIPE_WIDTH, movingGap)]
 }

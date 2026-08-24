@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "test": "vitest"
+    "build:pages": "tsc && GITHUB_PAGES=true vite build",
+    "test": "vitest",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",

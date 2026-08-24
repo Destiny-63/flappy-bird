@@ -1,6 +1,6 @@
 import { createWorld, handleSpace, updateWorld } from './game/world'
 import { createSpaceInput } from './input/keyboard'
-import { drawFrame } from './render/draw'
+import { drawFrame, loadBirdSprite } from './render/draw'
 
 const canvas = document.getElementById('game')
 if (!(canvas instanceof HTMLCanvasElement)) {
@@ -61,4 +61,6 @@ function frame(now: number) {
   requestAnimationFrame(frame)
 }
 
-requestAnimationFrame(frame)
+void loadBirdSprite().then(() => {
+  requestAnimationFrame(frame)
+})
